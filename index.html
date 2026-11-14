@@ -1,0 +1,377 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="theme-color" content="#090909">
+<title>BLACK ARCHIVE | Blog</title>
+<style>
+:root{
+  --bg:#090909;--panel:rgba(255,255,255,.30);--line:#393939;
+  --text:#eeeae4;--muted:#99938c;--accent:#c5b8a4;
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{margin:0;background:var(--bg);color:var(--text);
+  font-family:Inter,"Helvetica Neue",Arial,"Noto Sans JP",sans-serif;
+  letter-spacing:.035em;min-height:100vh}
+button,input,textarea{font:inherit}
+button{cursor:pointer}
+.site-header{max-width:1200px;margin:auto;padding:42px 28px 24px;
+  display:flex;align-items:flex-end;justify-content:space-between;gap:20px;
+  border-bottom:1px solid var(--line)}
+.brand h1{font-size:clamp(27px,5vw,43px);letter-spacing:.16em;
+  font-weight:400;margin:0}
+.brand p{font-size:10px;letter-spacing:.25em;color:var(--muted);margin:10px 0 0}
+.header-actions{display:flex;gap:8px;flex-wrap:wrap}
+.btn{border:1px solid #625d55;background:transparent;color:var(--text);
+  padding:10px 15px;font-size:11px;letter-spacing:.12em;transition:.2s}
+.btn:hover,.btn.primary{background:var(--text);color:#111;border-color:var(--text)}
+.btn.danger{border-color:#704848;color:#d5aaaa}
+main{max-width:1200px;margin:auto;padding:28px}
+.toolbar{display:flex;align-items:center;justify-content:space-between;
+  gap:15px;margin:0 0 22px;flex-wrap:wrap}
+.page-caption{font-size:11px;color:var(--muted);letter-spacing:.2em}
+.page-caption strong{color:var(--text);font-weight:400;font-size:14px;margin-right:8px}
+.grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:18px}
+.card{min-width:0;border:1px solid var(--line);background:var(--panel);
+  display:flex;flex-direction:column;position:relative;overflow:hidden}
+.card-image{width:100%;aspect-ratio:4/3;background:#171717;display:block;
+  object-fit:cover;color:#777}
+.image-placeholder{aspect-ratio:4/3;display:flex;align-items:center;
+  justify-content:center;background:#171717;color:#777;font-size:11px;
+  letter-spacing:.2em}
+.card-content{padding:17px 17px 15px;display:flex;flex:1;flex-direction:column}
+.card-number{font-size:9px;color:var(--muted);letter-spacing:.2em}
+.card-title{font-size:16px;font-weight:400;line-height:1.6;margin:9px 0}
+.card-body{font-size:12px;line-height:1.9;color:#c0bbb4;white-space:pre-wrap;
+  overflow-wrap:anywhere;margin:0 0 15px}
+.card-date{font-size:9px;color:var(--muted);margin-top:auto;padding-top:8px}
+.card-controls{display:flex;gap:6px;border-top:1px solid var(--line);padding:9px 12px}
+.card-controls button{flex:1;border:0;background:transparent;color:#aaa;
+  font-size:10px;padding:5px}
+.card-controls button:hover{color:#fff}
+.pagination{display:flex;justify-content:center;align-items:center;gap:8px;
+  padding:34px 0 10px;flex-wrap:wrap}
+.pagination button{min-width:34px;height:34px;border:1px solid var(--line);
+  background:transparent;color:var(--muted);font-size:11px}
+.pagination button.active{background:var(--text);color:#111;border-color:var(--text)}
+.pagination button:disabled{opacity:.3;cursor:default}
+.footer{text-align:center;color:#69645e;font-size:9px;letter-spacing:.2em;
+  padding:35px 10px 25px}
+.overlay{position:fixed;inset:0;background:rgba(0,0,0,.82);z-index:20;
+  display:none;align-items:center;justify-content:center;padding:18px;overflow:auto}
+.overlay.open{display:flex}
+.dialog{width:min(620px,100%);max-height:92vh;overflow:auto;background:#141414;
+  border:1px solid #4a4a4a;padding:24px}
+.dialog h2{font-size:16px;font-weight:400;letter-spacing:.15em;margin:0 0 22px}
+.field{display:flex;flex-direction:column;gap:7px;margin:0 0 16px}
+.field label{font-size:10px;color:var(--muted);letter-spacing:.15em}
+.field input,.field textarea{width:100%;background:#090909;border:1px solid #444;
+  color:var(--text);padding:11px;font-size:13px;outline:none}
+.field textarea{min-height:130px;resize:vertical;line-height:1.7}
+.field input:focus,.field textarea:focus{border-color:#aaa}
+.preview{max-width:100%;max-height:220px;object-fit:contain;background:#090909;
+  border:1px solid #333;display:none;margin:0 0 15px}
+.dialog-actions{display:flex;justify-content:flex-end;gap:8px;flex-wrap:wrap;margin-top:20px}
+.note{font-size:11px;color:var(--muted);line-height:1.8}
+.empty{grid-column:1/-1;border:1px dashed #444;padding:55px 20px;
+  text-align:center;color:var(--muted);font-size:12px}
+@media(max-width:760px){.grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
+  .site-header{padding:30px 18px 20px;align-items:flex-start;flex-direction:column}
+  main{padding:20px 16px}.card-content{padding:13px}.card-title{font-size:14px}}
+@media(max-width:430px){.grid{grid-template-columns:1fr}.card-image,.image-placeholder{aspect-ratio:16/9}}
+</style>
+</head>
+<body>
+<header class="site-header">
+  <div class="brand">
+    <h1>BLACK ARCHIVE</h1>
+    <p>IMAGE &amp; JOURNAL COLLECTION</p>
+  </div>
+  <div class="header-actions">
+    <button class="btn" id="addPageBtn">＋ ADD PAGE</button>
+    <button class="btn primary" id="newCardBtn">＋ NEW ARTICLE</button>
+  </div>
+</header>
+
+<main>
+  <div class="toolbar">
+    <div class="page-caption"><strong id="pageLabel">PAGE 01</strong><span id="countLabel">0 / 6 ARTICLES</span></div>
+    <div class="header-actions">
+      <button class="btn" id="prevBtn">PREV</button>
+      <button class="btn" id="nextBtn">NEXT</button>
+    </div>
+  </div>
+  <section class="grid" id="cardGrid" aria-live="polite"></section>
+  <nav class="pagination" id="pagination" aria-label="ページ"></nav>
+</main>
+<footer class="footer">BLACK ARCHIVE — PRIVATE JOURNAL</footer>
+
+<div class="overlay" id="editorOverlay" role="dialog" aria-modal="true" aria-labelledby="editorHeading">
+  <div class="dialog">
+    <h2 id="editorHeading">ARTICLE EDITOR</h2>
+    <form id="articleForm">
+      <div class="field">
+        <label for="titleInput">TITLE</label>
+        <input id="titleInput" maxlength="120" placeholder="記事タイトル">
+      </div>
+      <div class="field">
+        <label for="bodyInput">TEXT</label>
+        <textarea id="bodyInput" placeholder="本文を入力"></textarea>
+      </div>
+      <div class="field">
+        <label for="dateInput">DATE</label>
+        <input id="dateInput" type="date">
+      </div>
+      <div class="field">
+        <label for="imageInput">UPLOAD IMAGE</label>
+        <input id="imageInput" type="file" accept="image/*">
+      </div>
+      <img id="imagePreview" class="preview" alt="画像プレビュー">
+      <p class="note">画像はこのブラウザのIndexedDBに保存されます。別の端末・ブラウザには自動同期されません。画像を外す場合は「画像を削除」を選択してください。</p>
+      <div class="dialog-actions">
+        <button type="button" class="btn" id="removeImageBtn">画像を削除</button>
+        <button type="button" class="btn" id="cancelEditBtn">CANCEL</button>
+        <button type="submit" class="btn primary">SAVE ARTICLE</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<script>
+/*
+  BLACK ARCHIVE
+  GitHub Pages向け・単一HTML版
+
+  imagesフォルダの画像を公開ページに表示する場合：
+  1. リポジトリ直下に images フォルダを作成
+  2. 画像を追加
+  3. 下の IMAGE_FILES にファイル名を記入
+  4. GitHubへ index.html と images フォルダをコミット
+
+  例：
+  const IMAGE_FILES = ["image001.jpg", "image002.png"];
+  実際のURLは images/image001.jpg になります。
+
+  ブラウザからGitHubリポジトリへ直接書き込む機能はありません。
+*/
+const IMAGE_FILES = [
+  // "image001.jpg",
+  // "image002.png",
+];
+
+const DB_NAME = "blackArchiveDB";
+const STORE_NAME = "articles";
+const ARTICLES_PER_PAGE = 6;
+let db;
+let articles = [];
+let currentPage = 1;
+let editingId = null;
+let selectedImageBlob = null;
+let removeExistingImage = false;
+let previewUrl = null;
+
+const $ = id => document.getElementById(id);
+const grid = $("cardGrid");
+
+function openDatabase(){
+  return new Promise((resolve,reject)=>{
+    const request=indexedDB.open(DB_NAME,1);
+    request.onupgradeneeded=()=>{
+      const database=request.result;
+      if(!database.objectStoreNames.contains(STORE_NAME))
+        database.createObjectStore(STORE_NAME,{keyPath:"id"});
+    };
+    request.onsuccess=()=>resolve(request.result);
+    request.onerror=()=>reject(request.error);
+  });
+}
+function getAllArticles(){
+  return new Promise((resolve,reject)=>{
+    const request=db.transaction(STORE_NAME,"readonly").objectStore(STORE_NAME).getAll();
+    request.onsuccess=()=>resolve(request.result||[]);
+    request.onerror=()=>reject(request.error);
+  });
+}
+function putArticle(article){
+  return new Promise((resolve,reject)=>{
+    const request=db.transaction(STORE_NAME,"readwrite").objectStore(STORE_NAME).put(article);
+    request.onsuccess=resolve;request.onerror=()=>reject(request.error);
+  });
+}
+function deleteArticle(id){
+  return new Promise((resolve,reject)=>{
+    const request=db.transaction(STORE_NAME,"readwrite").objectStore(STORE_NAME).delete(id);
+    request.onsuccess=resolve;request.onerror=()=>reject(request.error);
+  });
+}
+function makeId(){return "a_"+Date.now()+"_"+Math.random().toString(36).slice(2,8)}
+function escapeHtml(value){
+  return String(value??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+}
+function formatDate(value){
+  if(!value)return "";
+  const d=new Date(value+"T00:00:00");
+  return Number.isNaN(d.getTime())?value:
+    `${d.getFullYear()}.${String(d.getMonth()+1).padStart(2,"0")}.${String(d.getDate()).padStart(2,"0")}`;
+}
+function articleImageSource(article){
+  if(article.imageBlob)return URL.createObjectURL(article.imageBlob);
+  if(article.imagePath)return article.imagePath;
+  return "";
+}
+function render(){
+  const pageCount=Math.max(1,Math.ceil(articles.length/ARTICLES_PER_PAGE));
+  if(currentPage>pageCount)currentPage=pageCount;
+  $("pageLabel").textContent=`PAGE ${String(currentPage).padStart(2,"0")}`;
+  const pageArticles=articles.slice((currentPage-1)*ARTICLES_PER_PAGE,currentPage*ARTICLES_PER_PAGE);
+  $("countLabel").textContent=`${pageArticles.length} / ${ARTICLES_PER_PAGE} ARTICLES`;
+  grid.innerHTML="";
+  if(!pageArticles.length){
+    grid.innerHTML='<div class="empty">NO ARTICLES YET<br><br>「NEW ARTICLE」から記事を追加できます。</div>';
+  }else{
+    pageArticles.forEach((article,index)=>{
+      const card=document.createElement("article");
+      card.className="card";
+      const src=articleImageSource(article);
+      const image=src
+        ? `<img class="card-image" src="${escapeHtml(src)}" alt="">`
+        : `<div class="image-placeholder">NO IMAGE</div>`;
+      card.innerHTML=`
+        ${image}
+        <div class="card-content">
+          <span class="card-number">ARTICLE ${String((currentPage-1)*6+index+1).padStart(2,"0")}</span>
+          <h2 class="card-title">${escapeHtml(article.title||"UNTITLED")}</h2>
+          <p class="card-body">${escapeHtml(article.body||"")}</p>
+          <time class="card-date">${escapeHtml(formatDate(article.date))}</time>
+        </div>
+        <div class="card-controls">
+          <button type="button" data-action="edit" data-id="${escapeHtml(article.id)}">EDIT</button>
+          <button type="button" data-action="delete" data-id="${escapeHtml(article.id)}">DELETE</button>
+        </div>`;
+      grid.appendChild(card);
+    });
+  }
+  renderPagination(pageCount);
+}
+function renderPagination(pageCount){
+  const nav=$("pagination");nav.innerHTML="";
+  const prev=document.createElement("button");prev.textContent="‹";prev.disabled=currentPage===1;
+  prev.onclick=()=>goPage(currentPage-1);nav.appendChild(prev);
+  for(let p=1;p<=pageCount;p++){
+    const b=document.createElement("button");b.textContent=String(p).padStart(2,"0");
+    if(p===currentPage)b.className="active";
+    b.onclick=()=>goPage(p);nav.appendChild(b);
+  }
+  const next=document.createElement("button");next.textContent="›";next.disabled=currentPage===pageCount;
+  next.onclick=()=>goPage(currentPage+1);nav.appendChild(next);
+  $("prevBtn").disabled=currentPage===1;
+  $("nextBtn").disabled=currentPage===pageCount;
+}
+function goPage(page){
+  const max=Math.max(1,Math.ceil(articles.length/ARTICLES_PER_PAGE));
+  currentPage=Math.min(max,Math.max(1,page));render();window.scrollTo({top:0,behavior:"smooth"});
+}
+function openEditor(article=null){
+  editingId=article?.id||null;selectedImageBlob=null;removeExistingImage=false;
+  $("articleForm").reset();
+  $("editorHeading").textContent=article?"EDIT ARTICLE":"NEW ARTICLE";
+  $("titleInput").value=article?.title||"";
+  $("bodyInput").value=article?.body||"";
+  $("dateInput").value=article?.date||new Date().toISOString().slice(0,10);
+  const preview=$("imagePreview");
+  if(previewUrl){URL.revokeObjectURL(previewUrl);previewUrl=null;}
+  const src=article?articleImageSource(article):"";
+  if(src){preview.src=src;preview.style.display="block";}
+  else{preview.removeAttribute("src");preview.style.display="none";}
+  $("editorOverlay").classList.add("open");
+  $("titleInput").focus();
+}
+function closeEditor(){
+  $("editorOverlay").classList.remove("open");
+  if(previewUrl){URL.revokeObjectURL(previewUrl);previewUrl=null;}
+}
+$("imageInput").addEventListener("change",event=>{
+  const file=event.target.files?.[0];if(!file)return;
+  if(!file.type.startsWith("image/")){alert("画像ファイルを選択してください。");return;}
+  if(file.size>15*1024*1024){alert("画像は15MB以下にしてください。");event.target.value="";return;}
+  selectedImageBlob=file;removeExistingImage=false;
+  const preview=$("imagePreview");
+  if(previewUrl)URL.revokeObjectURL(previewUrl);
+  previewUrl=URL.createObjectURL(file);preview.src=previewUrl;preview.style.display="block";
+});
+$("removeImageBtn").onclick=()=>{
+  selectedImageBlob=null;removeExistingImage=true;$("imageInput").value="";
+  $("imagePreview").removeAttribute("src");$("imagePreview").style.display="none";
+};
+$("cancelEditBtn").onclick=closeEditor;
+$("articleForm").addEventListener("submit",async event=>{
+  event.preventDefault();
+  const old=articles.find(a=>a.id===editingId);
+  const article={
+    id:editingId||makeId(),
+    title:$("titleInput").value.trim(),
+    body:$("bodyInput").value,
+    date:$("dateInput").value,
+    imageBlob:removeExistingImage?null:(selectedImageBlob||old?.imageBlob||null),
+    imagePath:removeExistingImage||selectedImageBlob?null:(old?.imagePath||null),
+    updatedAt:Date.now()
+  };
+  try{
+    await putArticle(article);await refresh();
+    const index=articles.findIndex(a=>a.id===article.id);
+    currentPage=Math.floor(index/ARTICLES_PER_PAGE)+1;
+    render();closeEditor();
+  }catch(error){alert("保存できませんでした。ブラウザの保存容量をご確認ください。");console.error(error);}
+});
+grid.addEventListener("click",async event=>{
+  const button=event.target.closest("button[data-action]");if(!button)return;
+  const article=articles.find(a=>a.id===button.dataset.id);if(!article)return;
+  if(button.dataset.action==="edit")openEditor(article);
+  if(button.dataset.action==="delete"){
+    if(confirm("この記事を削除しますか？")){await deleteArticle(article.id);await refresh();render();}
+  }
+});
+$("newCardBtn").onclick=()=>openEditor();
+$("addPageBtn").onclick=()=>{
+  const pageCount=Math.max(1,Math.ceil(articles.length/ARTICLES_PER_PAGE));
+  currentPage=pageCount+1;render();window.scrollTo({top:0,behavior:"smooth"});
+};
+$("prevBtn").onclick=()=>goPage(currentPage-1);
+$("nextBtn").onclick=()=>goPage(currentPage+1);
+$("editorOverlay").addEventListener("click",event=>{
+  if(event.target===$("editorOverlay"))closeEditor();
+});
+document.addEventListener("keydown",event=>{if(event.key==="Escape")closeEditor();});
+
+async function refresh(){articles=await getAllArticles();articles.sort((a,b)=>(b.updatedAt||0)-(a.updatedAt||0));}
+
+/* 公開画像一覧をimagesフォルダから登録。記事カードとしてではなく、
+   記事編集画面の画像候補として使いたい場合は imagePath を記事データに設定。 */
+async function addFolderImagesToEmptyCards(){
+  for(const file of IMAGE_FILES){
+    const path="images/"+file;
+    const exists=articles.some(a=>a.imagePath===path);
+    if(!exists){
+      await putArticle({
+        id:makeId(),title:file.replace(/\.[^.]+$/,""),body:"",
+        date:new Date().toISOString().slice(0,10),
+        imageBlob:null,imagePath:path,updatedAt:Date.now()
+      });
+    }
+  }
+}
+(async()=>{
+  try{
+    db=await openDatabase();
+    await addFolderImagesToEmptyCards();
+    await refresh();render();
+  }catch(error){
+    grid.innerHTML='<div class="empty">このブラウザではIndexedDBを利用できません。通常のHTTPS公開URLで開いてください。</div>';
+    console.error(error);
+  }
+})();
+</script>
+</body>
+</html>
